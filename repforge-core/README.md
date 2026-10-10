@@ -1,6 +1,6 @@
 # RepForge Core
 
-Biblioteca Kotlin/JVM con Maven, siguiendo el esquema de integración de la guía de Clase 12. Contiene el modelo `Usuario` y `ValidadorUsuario`. No abre SQLite ni depende de Android.
+Biblioteca Kotlin/JVM con Maven. Contiene el modelo `Usuario` y `ValidadorUsuario`. No abre SQLite ni depende de Android.
 
 ## Compilar y publicar localmente
 
