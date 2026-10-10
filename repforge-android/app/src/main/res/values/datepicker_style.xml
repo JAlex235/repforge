@@ -1,0 +1,7 @@
+<resources>
+    <style name="Widget.RepForge.DatePicker" parent="android:style/Widget.Material.DatePicker">
+        <item name="android:datePickerMode">calendar</item>
+        <item name="android:headerBackground">@color/superficie</item>
+        <item name="android:calendarTextColor">@color/calendario_texto</item>
+    </style>
+</resources>

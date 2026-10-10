@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">RepForge</string>
+    <string name="database_open_error">No se pudo cargar tu perfil. Pulsa Reintentar. Tus datos no se han reemplazado.</string>
+    <string name="dark_theme">Tema oscuro</string>
+    <string name="profile_title">Tu perfil</string>
+    <string name="profile_intro">Completa tus datos para comenzar.</string>
+    <string name="preview_notice">Tu perfil se guarda únicamente en este dispositivo.</string>
+    <string name="name_label">Nombre</string>
+    <string name="birth_label">Fecha de nacimiento</string>
+    <string name="choose_date">Seleccionar fecha</string>
+    <string name="confirm_date">Aceptar</string>
+    <string name="cancel_date">Cancelar</string>
+    <string name="weight_label">Peso (kg)</string>
+    <string name="height_label">Altura (cm)</string>
+    <string name="sex_label">Sexo</string>
+    <string name="female">Femenino</string>
+    <string name="male">Masculino</string>
+    <string name="save_profile">Guardar perfil</string>
+    <string name="update_profile">Actualizar perfil</string>
+    <string name="loading_profile">Cargando perfil…</string>
+    <string name="saving_profile">Guardando…</string>
+    <string name="retry_profile">Reintentar</string>
+    <string name="profile_saved">Perfil guardado correctamente.</string>
+    <string name="profile_save_error">No se pudo guardar el perfil. Revisa los datos e inténtalo nuevamente.</string>
+    <string name="invalid_weight">Ingresa un peso numérico válido.</string>
+    <string name="invalid_height">Ingresa una altura en centímetros enteros.</string>
+    <string name="missing_birth">Selecciona tu fecha de nacimiento.</string>
+    <string name="missing_sex">Selecciona tu sexo.</string>
+</resources>

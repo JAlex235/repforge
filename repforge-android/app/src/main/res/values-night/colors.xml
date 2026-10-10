@@ -1,0 +1,13 @@
+<resources>
+    <color name="pantalla_fondo">#0B132B</color>
+    <color name="superficie">#1C2541</color>
+    <color name="acento">#47A8BD</color>
+    <color name="acento_secundario">#F5D061</color>
+    <color name="texto_principal">#F0F8FF</color>
+    <color name="texto_secundario">#8B9BB4</color>
+    <color name="boton_fondo">@color/acento</color>
+    <color name="boton_texto">#0B132B</color>
+    <color name="boton_ripple">#33FFFFFF</color>
+    <color name="boton_deshabilitado">@color/superficie</color>
+    <color name="boton_texto_deshabilitado">@color/texto_secundario</color>
+</resources>

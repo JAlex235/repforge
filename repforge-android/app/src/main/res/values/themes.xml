@@ -1,0 +1,34 @@
+<resources>
+    <style name="Theme.RepForge" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/acento</item>
+        <item name="colorPrimaryDark">@color/pantalla_fondo</item>
+        <item name="colorAccent">@color/acento</item>
+        <item name="android:colorAccent">@color/acento</item>
+        <item name="colorControlNormal">@color/texto_secundario</item>
+        <item name="colorControlActivated">@color/acento</item>
+        <item name="android:colorBackground">@color/pantalla_fondo</item>
+        <item name="android:colorBackgroundFloating">@color/superficie</item>
+        <item name="android:textColorPrimary">@color/texto_principal</item>
+        <item name="android:textColorSecondary">@color/texto_secundario</item>
+        <item name="android:textColorHint">@color/texto_secundario</item>
+        <item name="editTextColor">@color/texto_principal</item>
+        <item name="android:windowBackground">@color/pantalla_fondo</item>
+        <item name="buttonStyle">@style/Widget.RepForge.Button</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+    <style name="Widget.RepForge.Button" parent="Widget.AppCompat.Button">
+        <item name="fontFamily">@font/montserrat_600</item>
+        <item name="android:fontFamily">@font/montserrat_600</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:background">@drawable/boton_redondeado</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:backgroundTint">@null</item>
+        <item name="android:textColor">@color/texto_boton</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+</resources>

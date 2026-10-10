@@ -1,0 +1,53 @@
+# Archivos generados por Maven, Gradle, Kotlin y Android
+target/
+build/
+.gradle/
+.kotlin/
+.cxx/
+.externalNativeBuild/
+*.apk
+*.aab
+*.apks
+*.class
+
+# Configuración local del SDK y de los editores
+local.properties
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Credenciales y claves de firma (no incluir en el repositorio)
+.env
+.env.*
+!.env.example
+keystore.properties
+key.properties
+*.jks
+*.keystore
+*.p12
+*.pfx
+
+# Bases originales/locales y copias exportadas: se conservan los scripts SQL.
+# La base plantilla sí se versiona porque Android la necesita al instalarse.
+*.db
+*.sqlite
+*.sqlite3
+*.db-*
+*.sqlite-*
+*.sqlite3-*
+!/repforge-android/app/src/main/assets/databases/repforge.db
+
+# Archivos temporales, registros y metadatos del sistema
+*.log
+*.tmp
+*.bak
+*.swp
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# No ignorar *.jar: gradle-wrapper.jar es necesario para compilar.
+# Se conservan pom.xml, gradle.properties, scripts y configuración del wrapper.

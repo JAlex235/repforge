@@ -1,0 +1,12 @@
+<resources>
+    <style name="Theme.RepForge.DatePicker" parent="android:style/Theme.Material.Light.Dialog.Alert">
+        <item name="android:colorAccent">@color/acento</item>
+        <item name="android:colorControlActivated">@color/acento</item>
+        <item name="android:colorBackground">@color/superficie</item>
+        <item name="android:colorBackgroundFloating">@color/superficie</item>
+        <item name="android:textColorPrimary">@color/texto_principal</item>
+        <item name="android:textColorSecondary">@color/texto_secundario</item>
+        <item name="android:textColorPrimaryInverse">@color/boton_texto</item>
+        <item name="android:datePickerStyle">@style/Widget.RepForge.DatePicker</item>
+    </style>
+</resources>
