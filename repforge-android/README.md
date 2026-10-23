@@ -1,6 +1,15 @@
 # RepForge Android
 
-Primera pantalla Android con Kotlin, XML y View Binding. Consume `Usuario` y `ValidadorUsuario` desde el JAR de Maven, sin copiar sus fuentes. El formulario carga, valida, guarda y actualiza el perfil en SQLite local.
+Aplicación Android con Kotlin, XML y View Binding. Consume `Usuario` y `ValidadorUsuario` desde el JAR de Maven, sin copiar sus fuentes. Incluye Inicio y el formulario que carga, valida, guarda y actualiza el perfil en SQLite local.
+
+## Inicio y navegación
+
+- `InicioActivity` es la entrada de la aplicación. Consulta la base local: si no hay perfil, abre el formulario (`MainActivity`); si existe, muestra el saludo con el nombre guardado.
+- Guardar el primer perfil lleva a Inicio y cierra el formulario inicial. La barra inferior compartida permite navegar entre Inicio, Entrenar, Historial, Ejercicios y Perfil. La pestaña activa tiene un icono circular elevado, y adapta sus colores al tema. La barra queda fuera del scroll y por encima de la navegación del sistema o del teclado.
+- Entrenar, Historial y Ejercicios abren destinos informativos de Próximamente; no crean entrenamientos ni simulan funciones pendientes. La llamada principal Iniciar entrenamiento abre la misma sección Entrenar.
+- Durante el registro inicial, la barra permanece visible en Perfil pero requiere guardar el perfil antes de cambiar de sección. Al editar un perfil, cambiar de pestaña o pulsar Atrás con cambios pendientes solicita confirmación para descartarlos.
+- `PantallaBaseActivity` centraliza la barra y su navegación. Inicio permanece como raíz; al cambiar de una sección secundaria a otra, se reemplaza la pantalla anterior para evitar acumular un historial de pestañas. Las nuevas pantallas deben heredar esta clase y declarar `seccionActual`.
+- Se reutilizan la cabecera, el tema y las fuentes. La carga ocurre fuera del hilo de interfaz; ante un error se muestra Reintentar sin borrar datos ni tratar el error como ausencia de perfil.
 
 ## Abrir y ejecutar
 
@@ -21,10 +30,12 @@ APK de desarrollo: `app/build/outputs/apk/debug/app-debug.apk`.
 
 - Android Gradle Plugin 9.4.1 y Gradle Wrapper 9.6.0, disponibles en el entorno al crear el proyecto.
 - AGP 9 integra Kotlin; no se aplica el plugin `org.jetbrains.kotlin.android` por separado. Es una adaptación de configuración respecto a la guía de Clase 12. Referencia: https://developer.android.com/build/migrate-to-built-in-kotlin
-- JDK 17 o superior compatible con Gradle; bytecode de Android configurado para JVM 17. El core genera bytecode JVM 11.
+- El daemon de Gradle utiliza Java 25, según `gradle/gradle-daemon-jvm.properties`, con enlaces de descarga para el JDK gestionado. Se desactiva la búsqueda automática de instalaciones externas para evitar que seleccione un runtime incompleto de otro editor (por ejemplo, el de VS Code sin `jlink`). No se incluyen rutas absolutas de la computadora. El bytecode de Android sigue configurado para JVM 17 y el core genera bytecode JVM 11.
 - SDK de compilación y destino 35; mínimo 24. AndroidX AppCompat, Activity y Core.
 - `mavenLocal()` está al final de `dependencyResolutionManagement`, limitado al grupo `edu.umg.repforge`.
 - Dependencia: `edu.umg.repforge:repforge-core:1.0.0`. Si no se encuentra, volver a ejecutar la instalación Maven del core en esta computadora y sincronizar Android.
+
+Si había un daemon activo antes de cambiar la selección de Java, detenerlo una vez con `.\gradlew.bat --stop` y volver a sincronizar Gradle en Android Studio. La configuración se aplica al proyecto Android; no modifica Maven ni el Java global del sistema. Referencia: https://docs.gradle.org/current/userguide/gradle_daemon.html
 
 ## Comprobación manual de la pantalla
 
@@ -32,8 +43,8 @@ APK de desarrollo: `app/build/outputs/apk/debug/app-debug.apk`.
 - Sin fecha o sexo seleccionado: indicar el dato faltante.
 - Nombre vacío con los demás campos completos: mostrar el error del core.
 - Peso o altura cero: mostrar el error del core.
-- Perfil válido: pulsar Guardar perfil y comprobar la confirmación. El botón cambia a Actualizar perfil.
-- Cerrar y volver a abrir: recuperar todos los datos guardados, incluidas tildes y ñ.
+- Primer perfil válido: pulsar Guardar perfil y comprobar que se abre Inicio con el nombre.
+- Cerrar y volver a abrir: entrar directamente a Inicio; Mi perfil recupera todos los datos guardados, incluidas tildes y ñ.
 - Editar y actualizar: modificar el mismo registro sin crear otro usuario.
 - Comprobar selección de fecha, teclado, desplazamiento y rotación de pantalla. La fecha se conserva en el estado de la Activity; los campos con ID usan la restauración estándar de Android.
 
@@ -55,7 +66,7 @@ Para ejecutar las pruebas de instalación, reapertura y fallos en un dispositivo
 
 La propiedad `pruebasAisladas` utiliza el paquete `edu.umg.repforge.pruebas`, separado de la app habitual. Las pruebas de base trabajan en carpetas temporales; la prueba de pantalla guarda únicamente en ese paquete y se omite si no se activa la propiedad. El ejecutor puede retirar los paquetes probados al terminar. Compilar sin la propiedad para generar la aplicación normal. Una actualización del asset no se aplica automáticamente a instalaciones existentes.
 
-Verificación realizada: doce pruebas instrumentadas aprobadas en API 35, sin fallos ni omisiones. Cubren instalación y protección de la base, guardado y actualización, validación, transacciones, concurrencia y flujo de pantalla con reapertura y conservación de borradores.
+Verificación realizada: quince pruebas instrumentadas aprobadas en API 35, sin fallos ni omisiones. Cubren instalación y protección de la base, guardado y actualización, validación, transacciones, concurrencia, reapertura, conservación de borradores, navegación entre las cinco pestañas, confirmación al descartar ediciones y cambio de tema. Para las pruebas de interfaz el emulador debe estar desbloqueado y sin diálogos del sistema que cubran la aplicación.
 
 ## Apariencia compartida
 

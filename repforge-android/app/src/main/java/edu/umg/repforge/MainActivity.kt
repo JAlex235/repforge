@@ -2,8 +2,10 @@ package edu.umg.repforge
 
 import android.app.DatePickerDialog
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.addCallback
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -12,6 +14,7 @@ import kotlinx.coroutines.withContext
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.doAfterTextChanged
+import androidx.appcompat.app.AlertDialog
 import edu.umg.repforge.databinding.ActivityMainBinding
 import edu.umg.repforge.modelo.Usuario
 import edu.umg.repforge.servicio.ValidadorUsuario
@@ -19,6 +22,9 @@ import java.text.DateFormat
 import java.util.Calendar
 
 class MainActivity : PantallaBaseActivity() {
+    override val seccionActual = Seccion.PERFIL
+    private var cambiosSinGuardar = false
+    private var confirmacionSalida: AlertDialog? = null
     private lateinit var binding: ActivityMainBinding
     private val validador = ValidadorUsuario()
     private var fechaNacimiento: Int? = null
@@ -36,13 +42,26 @@ class MainActivity : PantallaBaseActivity() {
         fechaNacimiento = savedInstanceState?.getInt("fechaNacimiento")?.takeIf { it != 0 }
         mostrarFecha()
         binding.btnFecha.setOnClickListener { seleccionarFecha() }
+        cambiosSinGuardar = savedInstanceState?.getBoolean("cambiosSinGuardar") ?: false
         binding.btnValidar.setOnClickListener {
             if (!baseDisponible) prepararBaseDatos() else guardarPerfil()
         }
         listOf(binding.etNombre, binding.etPeso, binding.etAltura).forEach { campo ->
-            campo.doAfterTextChanged { binding.tvResultado.text = "" }
+            campo.doAfterTextChanged {
+                binding.tvResultado.text = ""
+                if (baseDisponible) cambiosSinGuardar = true
+            }
         }
-        binding.rgSexo.setOnCheckedChangeListener { _, _ -> binding.tvResultado.text = "" }
+        binding.rgSexo.setOnCheckedChangeListener { _, _ ->
+            binding.tvResultado.text = ""
+            if (baseDisponible) cambiosSinGuardar = true
+        }
+        onBackPressedDispatcher.addCallback(this) {
+            if (!ocupado) antesDeNavegar {
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+            }
+        }
         prepararBaseDatos()
     }
 
@@ -86,6 +105,7 @@ class MainActivity : PantallaBaseActivity() {
         listOf(binding.etNombre, binding.etPeso, binding.etAltura, binding.btnFecha,
             binding.rbFemenino, binding.rbMasculino).forEach { it.isEnabled = editable }
         binding.btnValidar.isEnabled = !ocupado
+        habilitarNavegacion(existePerfil && !ocupado && baseDisponible)
         binding.btnValidar.setText(when {
             ocupado && !baseDisponible -> R.string.loading_profile
             ocupado -> R.string.saving_profile
@@ -98,6 +118,7 @@ class MainActivity : PantallaBaseActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         fechaNacimiento?.let { outState.putInt("fechaNacimiento", it) }
         outState.putBoolean("formularioInicializado", formularioInicializado)
+        outState.putBoolean("cambiosSinGuardar", cambiosSinGuardar)
         super.onSaveInstanceState(outState)
     }
 
@@ -109,6 +130,7 @@ class MainActivity : PantallaBaseActivity() {
         val dialogo = DatePickerDialog(this, R.style.Theme_RepForge_DatePicker, { _, anio, mes, dia ->
             fechaNacimiento = anio * 10000 + (mes + 1) * 100 + dia
             mostrarFecha()
+            cambiosSinGuardar = true
             binding.tvResultado.text = ""
         }, inicial.get(Calendar.YEAR), inicial.get(Calendar.MONTH), inicial.get(Calendar.DAY_OF_MONTH))
         dialogo.datePicker.maxDate = System.currentTimeMillis()
@@ -181,9 +203,12 @@ class MainActivity : PantallaBaseActivity() {
         actualizarControles()
         lifecycleScope.launch {
             try {
+                val primerPerfil = !existePerfil
                 withContext(Dispatchers.IO) { usuarios.guardar(usuario) }
                 existePerfil = true
+                cambiosSinGuardar = false
                 binding.tvResultado.setText(R.string.profile_saved)
+                if (primerPerfil) volverAInicio()
             } catch (cancelacion: CancellationException) {
                 throw cancelacion
             } catch (fallo: Exception) {
@@ -194,5 +219,32 @@ class MainActivity : PantallaBaseActivity() {
                 actualizarControles()
             }
         }
+    }
+
+    private fun volverAInicio() {
+        startActivity(Intent(this, InicioActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        })
+        finish()
+    }
+
+    override fun antesDeNavegar(continuar: () -> Unit) {
+        if (!cambiosSinGuardar) {
+            continuar()
+            return
+        }
+        if (confirmacionSalida != null) return
+        confirmacionSalida = AlertDialog.Builder(this)
+            .setTitle(R.string.unsaved_title)
+            .setMessage(R.string.unsaved_message)
+            .setNegativeButton(R.string.keep_editing, null)
+            .setPositiveButton(R.string.discard_changes) { _, _ -> continuar() }
+            .create().also { dialogo ->
+                dialogo.setOnDismissListener { confirmacionSalida = null }
+                dialogo.show()
+                listOf(DialogInterface.BUTTON_POSITIVE, DialogInterface.BUTTON_NEGATIVE).forEach {
+                    dialogo.getButton(it).setTextColor(ContextCompat.getColor(this, R.color.texto_principal))
+                }
+            }
     }
 }

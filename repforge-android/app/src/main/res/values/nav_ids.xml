@@ -1,0 +1,7 @@
+<resources>
+    <item name="navInicio" type="id" />
+    <item name="navEntrenar" type="id" />
+    <item name="navHistorial" type="id" />
+    <item name="navEjercicios" type="id" />
+    <item name="navPerfil" type="id" />
+</resources>

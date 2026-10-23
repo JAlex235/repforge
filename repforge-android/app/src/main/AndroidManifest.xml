@@ -10,7 +10,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RepForge">
         <activity
+            android:name=".SeccionPendienteActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".InicioActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
