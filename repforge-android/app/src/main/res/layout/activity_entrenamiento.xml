@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="24dp">
+        <TextView android:id="@+id/tituloEntrenar" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/nav_train" android:textAppearance="@style/TextAppearance.RepForge.Title" />
+        <TextView android:id="@+id/estadoEntrenar" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:accessibilityLiveRegion="polite"
+            android:textAppearance="@style/TextAppearance.RepForge.Detail" />
+        <Button android:id="@+id/reintentarEntrenar" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/retry_profile" android:visibility="gone" />
+        <LinearLayout android:id="@+id/nuevoEntrenamiento" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:visibility="gone">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="24dp" android:text="@string/training_name" android:labelFor="@id/nombreEntrenamiento"
+                android:textAppearance="@style/TextAppearance.RepForge.Subtitle" />
+            <EditText android:id="@+id/nombreEntrenamiento" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="48dp" android:inputType="textCapSentences" android:autofillHints=""
+                android:hint="@string/training_name_hint" android:textColor="@color/texto_principal"
+                android:textColorHint="@color/texto_secundario" />
+            <Button android:id="@+id/crearEntrenamiento" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:text="@string/start_training" />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/sesionEntrenamiento" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:visibility="gone">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="20dp" android:layout_marginTop="20dp" android:background="@drawable/tarjeta_inicio">
+                <TextView android:id="@+id/nombreSesion" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.RepForge.Subtitle" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:text="@string/training_elapsed" android:textAppearance="@style/TextAppearance.RepForge.Detail" />
+                <TextView android:id="@+id/tiempoSesion" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.RepForge.Timer" android:accessibilityLiveRegion="none" />
+            </LinearLayout>
+            <Button android:id="@+id/agregarEjercicio" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:text="@string/training_add" />
+            <TextView android:id="@+id/resumenBloques" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" android:textAppearance="@style/TextAppearance.RepForge.Detail" />
+            <LinearLayout android:id="@+id/bloquesEntrenamiento" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:orientation="vertical" />
+            <Button android:id="@+id/descartarEntrenamiento" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="24dp" android:text="@string/training_discard" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
+

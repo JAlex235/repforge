@@ -84,12 +84,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="@string/start_training" />
+                    android:text="@string/training_open" />
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="@string/coming_soon"
+                    android:text="@string/training_home"
                     android:textAppearance="@style/TextAppearance.RepForge.Detail"
                     android:textColor="@color/acento_secundario" />
             </LinearLayout>

@@ -1,6 +1,6 @@
 # RepForge Core
 
-Biblioteca Kotlin/JVM con Maven. Contiene el modelo `Usuario` y `ValidadorUsuario`. No abre SQLite ni depende de Android.
+Biblioteca Kotlin/JVM con Maven. Contiene los modelos Usuario, Ejercicio, GrupoMuscular, Entrenamiento y BloqueEjercicio, además de ValidadorUsuario. No abre SQLite ni depende de Android.
 
 ## Compilar y publicar localmente
 
@@ -12,7 +12,7 @@ mvn clean install
 
 El comando ejecuta las pruebas y genera `target/repforge-core-1.0.0.jar`. También instala el JAR y su POM en el repositorio local de Maven. Para ejecutar solamente las pruebas: `mvn test`.
 
-El proyecto fija Kotlin 2.2.21, bytecode JVM 11 y JUnit 5.11.4 (solo pruebas). Al crear Android se debe alinear su compilador Kotlin con el del core; no basta con cualquier versión 2.0. La integración Android aún no se ha probado.
+El proyecto fija Kotlin 2.2.21, bytecode JVM 11 y JUnit 5.11.4 (solo pruebas). Android consume este JAR mediante mavenLocal; volver a instalarlo después de modificar los modelos.
 
 ## Primer uso
 

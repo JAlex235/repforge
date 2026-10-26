@@ -6,7 +6,7 @@ Aplicación Android con Kotlin, XML y View Binding. Consume `Usuario` y `Validad
 
 - `InicioActivity` es la entrada de la aplicación. Consulta la base local: si no hay perfil, abre el formulario (`MainActivity`); si existe, muestra el saludo con el nombre guardado.
 - Guardar el primer perfil lleva a Inicio y cierra el formulario inicial. La barra inferior compartida permite navegar entre Inicio, Entrenar, Historial, Ejercicios y Perfil. La pestaña activa tiene un icono circular elevado, y adapta sus colores al tema. La barra queda fuera del scroll y por encima de la navegación del sistema o del teclado.
-- Entrenar e Historial abren destinos informativos de Próximamente. Ejercicios abre el catálogo real de SQLite. La llamada principal Iniciar entrenamiento abre la misma sección Entrenar.
+- Entrenar abre la sesión en curso o el formulario para iniciarla. Historial conserva el destino informativo de Próximamente. Ejercicios abre el catálogo de SQLite; el botón Ir a entrenamiento de Inicio abre la misma sección Entrenar.
 - Durante el registro inicial, la barra permanece visible en Perfil pero requiere guardar el perfil antes de cambiar de sección. Al editar un perfil, cambiar de pestaña o pulsar Atrás con cambios pendientes solicita confirmación para descartarlos.
 - `PantallaBaseActivity` centraliza la barra y su navegación. Inicio permanece como raíz; al cambiar de una sección secundaria a otra, se reemplaza la pantalla anterior para evitar acumular un historial de pestañas. Las nuevas pantallas deben heredar esta clase y declarar `seccionActual`.
 - Se reutilizan la cabecera, el tema y las fuentes. La carga ocurre fuera del hilo de interfaz; ante un error se muestra Reintentar sin borrar datos ni tratar el error como ausencia de perfil.
@@ -18,6 +18,14 @@ La pestaña Ejercicios consulta los ejercicios activos de la base local y muestr
 Los modelos `Ejercicio` y `GrupoMuscular` están en el core. `EjercicioRepositorySqlite` realiza las consultas con JOIN en Android; `EjerciciosActivity` las ejecuta en IO y presenta las filas mediante ListView con reutilización de vistas. Esta etapa es de consulta: no permite editar el catálogo ni registra entrenamientos.
 
 Después de actualizar los modelos del core, ejecutar `mvn clean install` antes de compilar Android.
+
+## Entrenamiento en curso
+
+EntrenamientoActivity permite iniciar una sesión con nombre, recuperar la sesión activa, consultar el tiempo transcurrido y añadir ejercicios del catálogo mediante un selector. Cada ejercicio aparece una vez en la sesión; repetir su selección es idempotente. La lista conserva el orden de incorporación. El registro de series y la finalización se implementarán en el siguiente avance.
+
+EntrenamientoRepositorySqlite usa transacciones para iniciar, añadir y descartar; el índice existente limita a una sesión activa. Repetir el inicio recupera la sesión existente. Las operaciones sobre IDs que ya no estén activos se rechazan. Descartar requiere confirmación en la pantalla y elimina por cascada los bloques y series de esa sesión; no modifica sesiones finalizadas.
+
+El inicio se guarda como milisegundos Unix y permite recuperar el tiempo tras cerrar la app. Mientras la pantalla está abierta se utiliza un reloj monotónico; no hay un servicio ejecutándose en segundo plano. Las consultas y escrituras se ejecutan fuera del hilo de interfaz. No se modificó el esquema ni las bases original y plantilla.
 
 ## Abrir y ejecutar
 
@@ -74,7 +82,7 @@ Para ejecutar las pruebas de instalación, reapertura y fallos en un dispositivo
 
 La propiedad `pruebasAisladas` utiliza el paquete `edu.umg.repforge.pruebas`, separado de la app habitual. Las pruebas de base trabajan en carpetas temporales; la prueba de pantalla guarda únicamente en ese paquete y se omite si no se activa la propiedad. El ejecutor puede retirar los paquetes probados al terminar. Compilar sin la propiedad para generar la aplicación normal. Una actualización del asset no se aplica automáticamente a instalaciones existentes.
 
-Verificación realizada: diecisiete pruebas instrumentadas verificadas en API 35. Quince aprobaron en la ejecución general y las dos restantes aprobaron al repetirlas tras cerrar los diálogos ANR del sistema del emulador. Cubren instalación y protección de la base, guardado y actualización, validación, transacciones, concurrencia, reapertura, conservación de borradores, navegación, confirmación al descartar ediciones, consulta de ejercicios activos y conservación del filtro al recrear o cambiar de tema. Para las pruebas de interfaz el emulador debe estar desbloqueado y sin diálogos del sistema que cubran la aplicación.
+Verificación realizada: 21 pruebas instrumentadas aprobadas en API 35, sin fallos ni omisiones. Cubren instalación y protección de la base, perfil, validaciones, transacciones, concurrencia, reapertura, borradores, navegación, catálogo y filtro. Incluyen inicio concurrente de entrenamiento, recuperación de sesión, incorporación idempotente de ejercicios, rechazo de ejercicios inactivos, protección de sesiones finalizadas y flujo de pantalla con cambio de tema y descarte confirmado. Para las pruebas de interfaz el emulador debe estar desbloqueado y sin diálogos del sistema que cubran la aplicación.
 
 ## Apariencia compartida
 

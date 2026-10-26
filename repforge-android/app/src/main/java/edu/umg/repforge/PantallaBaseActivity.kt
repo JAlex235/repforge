@@ -48,6 +48,7 @@ abstract class PantallaBaseActivity : AppCompatActivity() {
                     Seccion.INICIO -> InicioActivity::class.java
                     Seccion.PERFIL -> MainActivity::class.java
                     Seccion.EJERCICIOS -> EjerciciosActivity::class.java
+                    Seccion.ENTRENAR -> EntrenamientoActivity::class.java
                     else -> SeccionPendienteActivity::class.java
                 }
                 startActivity(Intent(this, destino).apply {

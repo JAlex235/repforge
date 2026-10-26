@@ -33,6 +33,7 @@ class InicioPantallaTest {
     fun preparar() {
         assumeTrue("Ejecutar con -PpruebasAisladas=true", app.packageName == "edu.umg.repforge.pruebas")
         app.baseDatos.abrir().delete("usuario", null, null)
+        app.baseDatos.abrir().delete("entrenamiento", null, null)
     }
 
     @After
@@ -100,6 +101,34 @@ class InicioPantallaTest {
     }
 
     @Test
+    fun entrenamientoGuardaSeleccionConservaSesionYConfirmaDescarte() {
+        app.usuarios.guardar(Usuario("José", 20000514, 75.5, 170, true))
+        val ejercicio = app.ejercicios.listar().first()
+        ActivityScenario.launch(EntrenamientoActivity::class.java).use { escenario ->
+            esperarTexto(R.id.estadoEntrenar, app.getString(R.string.training_intro))
+            onView(withId(R.id.nombreEntrenamiento)).perform(scrollTo(), replaceText("Fuerza A"), closeSoftKeyboard())
+            onView(withId(R.id.crearEntrenamiento)).perform(scrollTo(), click())
+            esperarTexto(R.id.nombreSesion, "Fuerza A")
+            val id = app.entrenamientos.activo()!!.id
+            onView(withId(R.id.agregarEjercicio)).perform(scrollTo(), click())
+            onView(withText(ejercicio.nombre + " · " + ejercicio.grupoPrincipal.nombre)).perform(click())
+            esperarTexto(R.id.resumenBloques, "1 ejercicio en la sesión")
+            escenario.recreate()
+            esperarTexto(R.id.nombreSesion, "Fuerza A")
+            assertEquals(id, app.entrenamientos.activo()!!.id)
+            onView(withId(R.id.switchTema)).perform(click())
+            esperarTexto(R.id.resumenBloques, "1 ejercicio en la sesión")
+            onView(withId(R.id.descartarEntrenamiento)).perform(scrollTo(), click())
+            onView(withText(R.string.cancel_date)).perform(click())
+            assertNotNull(app.entrenamientos.activo())
+            onView(withId(R.id.descartarEntrenamiento)).perform(scrollTo(), click())
+            onView(withText(R.string.discard_changes)).perform(click())
+            esperarTexto(R.id.estadoEntrenar, app.getString(R.string.training_intro))
+            assertNull(app.entrenamientos.activo())
+        }
+    }
+
+    @Test
     fun catalogoFiltraYConservaGrupoAlRecrear() {
         app.usuarios.guardar(Usuario("José", 20000514, 75.5, 170, true))
         ActivityScenario.launch(EjerciciosActivity::class.java).use { escenario ->
@@ -134,6 +163,8 @@ class InicioPantallaTest {
                 onView(withId(seccion.vistaId)).perform(click())
                 if (seccion == Seccion.EJERCICIOS) {
                     esperarTexto(R.id.estadoCatalogo, "24 ejercicios disponibles")
+                } else if (seccion == Seccion.ENTRENAR) {
+                    esperarTexto(R.id.estadoEntrenar, app.getString(R.string.training_intro))
                 } else {
                     esperarTexto(R.id.tvSeccion, app.getString(seccion.titulo))
                 }

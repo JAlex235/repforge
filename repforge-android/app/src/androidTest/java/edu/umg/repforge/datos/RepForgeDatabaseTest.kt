@@ -47,6 +47,56 @@ class RepForgeDatabaseTest {
         db.rawQuery(sql, null).use { it.moveToFirst(); it.getInt(0) }
 
     @Test
+    fun entrenamientoSeRecuperaYAgregarEsIdempotente() {
+        val base = gestor()
+        val repo = EntrenamientoRepositorySqlite(base)
+        assertNull(repo.activo())
+        val sesion = repo.iniciar(" Fuerza ", 1000)
+        assertEquals("Fuerza", sesion.nombre)
+        assertEquals(sesion.id, repo.iniciar("Otra sesión", 2000).id)
+        val ejercicios = EjercicioRepositorySqlite(base).listar()
+        repo.agregar(sesion.id, ejercicios[0].id)
+        repo.agregar(sesion.id, ejercicios[0].id)
+        repo.agregar(sesion.id, ejercicios[1].id)
+        val esperado = repo.activo()!!
+        assertEquals(listOf(1, 2), esperado.bloques.map { it.orden })
+        base.close()
+        val reabierto = EntrenamientoRepositorySqlite(gestor())
+        assertEquals(esperado, reabierto.activo())
+        reabierto.descartar(sesion.id)
+        assertNull(reabierto.activo())
+        assertEquals(0, numero(gestor().abrir(), "SELECT COUNT(*) FROM bloque_ejercicio"))
+    }
+
+    @Test
+    fun entrenamientoRechazaNombreVacioEjercicioInactivoYSesionFinalizada() {
+        val base = gestor()
+        val repo = EntrenamientoRepositorySqlite(base)
+        try { repo.iniciar("  "); fail("Debe rechazar nombre vacío") } catch (_: IllegalArgumentException) {}
+        assertNull(repo.activo())
+        val sesion = repo.iniciar("Fuerza", 1000)
+        val id = EjercicioRepositorySqlite(base).listar().first().id
+        base.abrir().execSQL("UPDATE ejercicio SET activo = 0 WHERE id_ejercicio = ?", arrayOf(id))
+        try { repo.agregar(sesion.id, id); fail("Debe rechazar inactivo") } catch (_: IllegalArgumentException) {}
+        assertTrue(repo.activo()!!.bloques.isEmpty())
+        base.abrir().execSQL("UPDATE entrenamiento SET estado = 1, fecha_hora_fin = 2000")
+        try { repo.descartar(sesion.id); fail("No debe borrar historial") } catch (_: IllegalArgumentException) {}
+        assertEquals(1, numero(base.abrir(), "SELECT COUNT(*) FROM entrenamiento"))
+    }
+
+    @Test
+    fun dosIniciosConcurrentesCreanUnaSolaSesion() {
+        val base = gestor()
+        val repo = EntrenamientoRepositorySqlite(base)
+        val pool = java.util.concurrent.Executors.newFixedThreadPool(2)
+        try {
+            val futuros = (1..2).map { i -> pool.submit<Long> { repo.iniciar("Sesión $i").id } }
+            assertEquals(futuros[0].get(), futuros[1].get())
+            assertEquals(1, numero(base.abrir(), "SELECT COUNT(*) FROM entrenamiento"))
+        } finally { pool.shutdownNow() }
+    }
+
+    @Test
     fun catalogoRelacionaGruposYOmiteEjerciciosInactivos() {
         val base = gestor()
         val repo = EjercicioRepositorySqlite(base)

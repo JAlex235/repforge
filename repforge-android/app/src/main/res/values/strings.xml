@@ -64,4 +64,25 @@
         <item quantity="one">%d ejercicio disponible</item>
         <item quantity="other">%d ejercicios disponibles</item>
     </plurals>
+    <string name="training_name">Nombre del entrenamiento</string>
+    <string name="training_name_hint">Ejemplo: Pecho y tríceps</string>
+    <string name="training_name_required">Ingresa un nombre para el entrenamiento.</string>
+    <string name="training_elapsed">Tiempo transcurrido</string>
+    <string name="training_add">Añadir ejercicio</string>
+    <string name="training_select">Selecciona un ejercicio</string>
+    <string name="training_discard">Descartar entrenamiento</string>
+    <string name="training_discard_message">Se eliminará esta sesión y todos sus ejercicios y series. Esta acción no se puede deshacer.</string>
+    <string name="training_working">Cargando entrenamiento…</string>
+    <string name="training_error">No se pudo actualizar la sesión. Pulsa Reintentar para consultar su estado guardado.</string>
+    <string name="training_intro">Ponle un nombre a tu sesión y comienza cuando estés listo.</string>
+    <string name="training_saved">Sesión en curso. Puedes salir y regresar: tu avance queda guardado.</string>
+    <string name="training_empty">Añade el primer ejercicio a tu sesión.</string>
+    <string name="training_no_more">Ya añadiste todos los ejercicios disponibles.</string>
+    <string name="training_block">%1$d. %2$s</string>
+    <string name="training_home">Crea una sesión o retoma la que está en curso.</string>
+    <string name="training_open">Ir a entrenamiento</string>
+    <plurals name="training_count">
+        <item quantity="one">%d ejercicio en la sesión</item>
+        <item quantity="other">%d ejercicios en la sesión</item>
+    </plurals>
 </resources>
