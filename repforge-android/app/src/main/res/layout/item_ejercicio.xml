@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="vertical" android:padding="16dp" android:background="@drawable/tarjeta_inicio">
+    <TextView android:id="@+id/nombreEjercicio" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:textAppearance="@style/TextAppearance.RepForge.Subtitle" />
+    <TextView android:id="@+id/gruposEjercicio" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="8dp"
+        android:textAppearance="@style/TextAppearance.RepForge.Detail" />
+    <TextView android:id="@+id/tipoEjercicio" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="4dp"
+        android:textAppearance="@style/TextAppearance.RepForge.Detail" />
+</LinearLayout>
+

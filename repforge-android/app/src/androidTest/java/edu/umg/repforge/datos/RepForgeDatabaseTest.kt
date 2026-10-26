@@ -47,6 +47,23 @@ class RepForgeDatabaseTest {
         db.rawQuery(sql, null).use { it.moveToFirst(); it.getInt(0) }
 
     @Test
+    fun catalogoRelacionaGruposYOmiteEjerciciosInactivos() {
+        val base = gestor()
+        val repo = EjercicioRepositorySqlite(base)
+        assertEquals(10, repo.grupos().size)
+        val ejercicios = repo.listar()
+        assertEquals(24, ejercicios.size)
+        assertTrue(ejercicios.any { it.grupoSecundario == null })
+        assertTrue(ejercicios.any { it.grupoSecundario != null })
+        assertTrue(ejercicios.any { it.usaPesoCorporal })
+        assertTrue(ejercicios.all { e -> repo.grupos().any { it.id == e.grupoPrincipal.id } })
+        val id = ejercicios.first().id
+        base.abrir().execSQL("UPDATE ejercicio SET activo = 0 WHERE id_ejercicio = ?", arrayOf(id))
+        assertEquals(23, repo.listar().size)
+        assertFalse(repo.listar().any { it.id == id })
+    }
+
+    @Test
     fun guardaActualizaSinDuplicarYRecuperaTodosLosCampos() {
         val base = gestor()
         val repo = UsuarioRepositorySqlite(base)

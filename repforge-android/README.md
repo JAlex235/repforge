@@ -6,10 +6,18 @@ Aplicación Android con Kotlin, XML y View Binding. Consume `Usuario` y `Validad
 
 - `InicioActivity` es la entrada de la aplicación. Consulta la base local: si no hay perfil, abre el formulario (`MainActivity`); si existe, muestra el saludo con el nombre guardado.
 - Guardar el primer perfil lleva a Inicio y cierra el formulario inicial. La barra inferior compartida permite navegar entre Inicio, Entrenar, Historial, Ejercicios y Perfil. La pestaña activa tiene un icono circular elevado, y adapta sus colores al tema. La barra queda fuera del scroll y por encima de la navegación del sistema o del teclado.
-- Entrenar, Historial y Ejercicios abren destinos informativos de Próximamente; no crean entrenamientos ni simulan funciones pendientes. La llamada principal Iniciar entrenamiento abre la misma sección Entrenar.
+- Entrenar e Historial abren destinos informativos de Próximamente. Ejercicios abre el catálogo real de SQLite. La llamada principal Iniciar entrenamiento abre la misma sección Entrenar.
 - Durante el registro inicial, la barra permanece visible en Perfil pero requiere guardar el perfil antes de cambiar de sección. Al editar un perfil, cambiar de pestaña o pulsar Atrás con cambios pendientes solicita confirmación para descartarlos.
 - `PantallaBaseActivity` centraliza la barra y su navegación. Inicio permanece como raíz; al cambiar de una sección secundaria a otra, se reemplaza la pantalla anterior para evitar acumular un historial de pestañas. Las nuevas pantallas deben heredar esta clase y declarar `seccionActual`.
 - Se reutilizan la cabecera, el tema y las fuentes. La carga ocurre fuera del hilo de interfaz; ante un error se muestra Reintentar sin borrar datos ni tratar el error como ausencia de perfil.
+
+## Catálogo de ejercicios
+
+La pestaña Ejercicios consulta los ejercicios activos de la base local y muestra nombre, grupo principal, grupo secundario (si existe) y tipo de carga. El selector filtra por grupo principal y conserva su selección al recrear la pantalla o cambiar de tema. Incluye carga, resultado vacío y reintento ante errores.
+
+Los modelos `Ejercicio` y `GrupoMuscular` están en el core. `EjercicioRepositorySqlite` realiza las consultas con JOIN en Android; `EjerciciosActivity` las ejecuta en IO y presenta las filas mediante ListView con reutilización de vistas. Esta etapa es de consulta: no permite editar el catálogo ni registra entrenamientos.
+
+Después de actualizar los modelos del core, ejecutar `mvn clean install` antes de compilar Android.
 
 ## Abrir y ejecutar
 
@@ -66,7 +74,7 @@ Para ejecutar las pruebas de instalación, reapertura y fallos en un dispositivo
 
 La propiedad `pruebasAisladas` utiliza el paquete `edu.umg.repforge.pruebas`, separado de la app habitual. Las pruebas de base trabajan en carpetas temporales; la prueba de pantalla guarda únicamente en ese paquete y se omite si no se activa la propiedad. El ejecutor puede retirar los paquetes probados al terminar. Compilar sin la propiedad para generar la aplicación normal. Una actualización del asset no se aplica automáticamente a instalaciones existentes.
 
-Verificación realizada: quince pruebas instrumentadas aprobadas en API 35, sin fallos ni omisiones. Cubren instalación y protección de la base, guardado y actualización, validación, transacciones, concurrencia, reapertura, conservación de borradores, navegación entre las cinco pestañas, confirmación al descartar ediciones y cambio de tema. Para las pruebas de interfaz el emulador debe estar desbloqueado y sin diálogos del sistema que cubran la aplicación.
+Verificación realizada: diecisiete pruebas instrumentadas verificadas en API 35. Quince aprobaron en la ejecución general y las dos restantes aprobaron al repetirlas tras cerrar los diálogos ANR del sistema del emulador. Cubren instalación y protección de la base, guardado y actualización, validación, transacciones, concurrencia, reapertura, conservación de borradores, navegación, confirmación al descartar ediciones, consulta de ejercicios activos y conservación del filtro al recrear o cambiar de tema. Para las pruebas de interfaz el emulador debe estar desbloqueado y sin diálogos del sistema que cubran la aplicación.
 
 ## Apariencia compartida
 

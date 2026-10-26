@@ -8,6 +8,7 @@ import edu.umg.repforge.datos.UsuarioRepositorySqlite
 class RepForgeApplication : Application() {
     val baseDatos by lazy { RepForgeDatabase(this) }
     val usuarios by lazy { UsuarioRepositorySqlite(baseDatos) }
+    val ejercicios by lazy { edu.umg.repforge.datos.EjercicioRepositorySqlite(baseDatos) }
 
     override fun onCreate() {
         super.onCreate()

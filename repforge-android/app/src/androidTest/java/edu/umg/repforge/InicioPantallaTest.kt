@@ -25,8 +25,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class }
-InicioPantallaTest {
+class InicioPantallaTest {
     private val instrumentacion = InstrumentationRegistry.getInstrumentation()
     private val app get() = instrumentacion.targetContext.applicationContext as RepForgeApplication
 
@@ -101,13 +100,43 @@ InicioPantallaTest {
     }
 
     @Test
+    fun catalogoFiltraYConservaGrupoAlRecrear() {
+        app.usuarios.guardar(Usuario("José", 20000514, 75.5, 170, true))
+        ActivityScenario.launch(EjerciciosActivity::class.java).use { escenario ->
+            esperarTexto(R.id.estadoCatalogo, "24 ejercicios disponibles")
+            escenario.onActivity {
+                val selector = it.findViewById<android.widget.Spinner>(R.id.filtroGrupo)
+                val indice = (0 until selector.count).first { i -> selector.getItemAtPosition(i) == "Pecho" }
+                selector.setSelection(indice)
+            }
+            val cantidad = app.ejercicios.listar().count { it.grupoPrincipal.nombre == "Pecho" }
+            esperarTexto(R.id.estadoCatalogo, "$cantidad ejercicios disponibles")
+            escenario.onActivity {
+                val lista = it.findViewById<android.widget.ListView>(R.id.listaEjercicios)
+                assertEquals(cantidad, lista.count)
+                for (i in 0 until lista.count) {
+                    assertEquals("Pecho", (lista.getItemAtPosition(i) as edu.umg.repforge.modelo.Ejercicio).grupoPrincipal.nombre)
+                }
+            }
+            escenario.recreate()
+            esperarTexto(R.id.estadoCatalogo, "$cantidad ejercicios disponibles")
+            onView(withId(R.id.switchTema)).perform(click())
+            esperarTexto(R.id.estadoCatalogo, "$cantidad ejercicios disponibles")
+        }
+    }
+
+    @Test
     fun barraNavegaSinAcumularPantallasYProtegeEdiciones() {
         app.usuarios.guardar(Usuario("José", 20000514, 75.5, 170, true))
         ActivityScenario.launch(InicioActivity::class.java).use {
             esperarTexto(R.id.tvSaludo, "Hola, José")
             for (seccion in listOf(Seccion.ENTRENAR, Seccion.HISTORIAL, Seccion.EJERCICIOS)) {
                 onView(withId(seccion.vistaId)).perform(click())
-                esperarTexto(R.id.tvSeccion, app.getString(seccion.titulo))
+                if (seccion == Seccion.EJERCICIOS) {
+                    esperarTexto(R.id.estadoCatalogo, "24 ejercicios disponibles")
+                } else {
+                    esperarTexto(R.id.tvSeccion, app.getString(seccion.titulo))
+                }
                 onView(withId(seccion.vistaId)).check(matches(isSelected()))
             }
             // Las pestañas reemplazan destinos secundarios; Atrás vuelve directamente a Inicio.

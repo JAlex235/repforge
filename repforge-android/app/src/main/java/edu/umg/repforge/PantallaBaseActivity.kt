@@ -47,6 +47,7 @@ abstract class PantallaBaseActivity : AppCompatActivity() {
                 val destino = when (seccion) {
                     Seccion.INICIO -> InicioActivity::class.java
                     Seccion.PERFIL -> MainActivity::class.java
+                    Seccion.EJERCICIOS -> EjerciciosActivity::class.java
                     else -> SeccionPendienteActivity::class.java
                 }
                 startActivity(Intent(this, destino).apply {

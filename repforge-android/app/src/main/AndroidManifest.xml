@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RepForge">
         <activity
+            android:name=".EjerciciosActivity"
+            android:exported="false" />
+        <activity
             android:name=".SeccionPendienteActivity"
             android:exported="false" />
         <activity

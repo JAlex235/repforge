@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="20dp">
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="@string/nav_exercises" android:textAppearance="@style/TextAppearance.RepForge.Title" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" android:text="@string/catalog_intro"
+        android:textAppearance="@style/TextAppearance.RepForge.Detail" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="16dp" android:labelFor="@id/filtroGrupo"
+        android:text="@string/catalog_filter" android:textAppearance="@style/TextAppearance.RepForge.Subtitle" />
+    <Spinner android:id="@+id/filtroGrupo" android:layout_width="match_parent"
+        android:layout_height="48dp" android:spinnerMode="dropdown" />
+    <TextView android:id="@+id/estadoCatalogo" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:paddingTop="8dp" android:paddingBottom="12dp"
+        android:accessibilityLiveRegion="polite" android:textAppearance="@style/TextAppearance.RepForge.Detail" />
+    <Button android:id="@+id/reintentarCatalogo" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:text="@string/retry_profile" android:visibility="gone" />
+    <ListView android:id="@+id/listaEjercicios" android:layout_width="match_parent"
+        android:layout_height="0dp" android:layout_weight="1" android:divider="@null"
+        android:dividerHeight="10dp" android:choiceMode="none" />
+</LinearLayout>
+

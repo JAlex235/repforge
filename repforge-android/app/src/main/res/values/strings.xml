@@ -50,4 +50,18 @@
     <string name="invalid_height">Ingresa una altura en centímetros enteros.</string>
     <string name="missing_birth">Selecciona tu fecha de nacimiento.</string>
     <string name="missing_sex">Selecciona tu sexo.</string>
+    <string name="catalog_intro">Consulta los ejercicios disponibles para tus entrenamientos.</string>
+    <string name="catalog_filter">Grupo muscular principal</string>
+    <string name="catalog_all">Todos los grupos</string>
+    <string name="catalog_loading">Cargando ejercicios…</string>
+    <string name="catalog_empty">No hay ejercicios activos para este grupo.</string>
+    <string name="catalog_error">No se pudo cargar el catálogo. Inténtalo nuevamente.</string>
+    <string name="catalog_primary">Principal: %1$s</string>
+    <string name="catalog_secondary">Secundario: %1$s</string>
+    <string name="catalog_bodyweight">Peso corporal</string>
+    <string name="catalog_external_weight">Carga externa</string>
+    <plurals name="catalog_count">
+        <item quantity="one">%d ejercicio disponible</item>
+        <item quantity="other">%d ejercicios disponibles</item>
+    </plurals>
 </resources>
