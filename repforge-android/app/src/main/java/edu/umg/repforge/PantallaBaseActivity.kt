@@ -34,9 +34,14 @@ abstract class PantallaBaseActivity : AppCompatActivity() {
     }
 
     protected open fun antesDeNavegar(continuar: () -> Unit) = continuar()
+    protected open fun alSeleccionarSeccionActual() = Unit
 
     protected fun navegarA(seccion: Seccion) {
-        if (seccion == seccionActual || cambiandoSeccion) return
+        if (cambiandoSeccion) return
+        if (seccion == seccionActual) {
+            alSeleccionarSeccionActual()
+            return
+        }
         if (!navegacionDisponible) {
             Toast.makeText(this, R.string.nav_complete_profile, Toast.LENGTH_SHORT).show()
             return
@@ -49,7 +54,7 @@ abstract class PantallaBaseActivity : AppCompatActivity() {
                     Seccion.PERFIL -> MainActivity::class.java
                     Seccion.EJERCICIOS -> EjerciciosActivity::class.java
                     Seccion.ENTRENAR -> EntrenamientoActivity::class.java
-                    else -> SeccionPendienteActivity::class.java
+                    Seccion.HISTORIAL -> HistorialActivity::class.java
                 }
                 startActivity(Intent(this, destino).apply {
                     putExtra("seccion", seccion.name)

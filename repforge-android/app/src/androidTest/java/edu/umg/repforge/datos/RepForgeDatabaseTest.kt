@@ -69,6 +69,42 @@ class RepForgeDatabaseTest {
     }
 
     @Test
+    fun historialOrdenaResumeYRecuperaDetalleSinIncluirSesionActiva() {
+        val base = gestor()
+        val repo = EntrenamientoRepositorySqlite(base)
+        assertTrue(repo.historial().isEmpty())
+        assertNull(repo.finalizado(-1))
+        val ejercicios = EjercicioRepositorySqlite(base).listar()
+        val primero = repo.iniciar("Primero", 1000)
+        val bloque = repo.agregar(primero.id, ejercicios[0].id).bloques.single()
+        repo.guardarSerie(primero.id, bloque.id, null, 20.5, 10)
+        repo.guardarSerie(primero.id, bloque.id, null, 25.0, 8)
+        val segundoBloque = repo.agregar(primero.id, ejercicios[1].id).bloques[1]
+        repo.guardarSerie(primero.id, segundoBloque.id, null, 15.0, 12)
+        val antesDeFinalizar = repo.activo()!!
+        assertNull(repo.finalizado(primero.id))
+        repo.finalizar(primero.id, 2000)
+        // Un ejercicio desactivado debe seguir apareciendo en sesiones anteriores.
+        base.abrir().execSQL("UPDATE ejercicio SET activo = 0 WHERE id_ejercicio = ?", arrayOf(ejercicios[0].id))
+        val segundo = repo.iniciar("Más reciente", 3000)
+        val b = repo.agregar(segundo.id, ejercicios[1].id).bloques.single()
+        repo.guardarSerie(segundo.id, b.id, null, 30.0, 6)
+        repo.finalizar(segundo.id, 4000)
+        val activo = repo.iniciar("En curso", 5000)
+        val historial = repo.historial()
+        assertEquals(listOf(segundo.id, primero.id), historial.map { it.id })
+        assertEquals(2, historial[1].cantidadEjercicios)
+        assertEquals(3, historial[1].cantidadSeries)
+        assertEquals(antesDeFinalizar.copy(fin = 2000), repo.finalizado(primero.id))
+        assertNull(repo.finalizado(activo.id))
+        base.close()
+        val reabierto = EntrenamientoRepositorySqlite(gestor())
+        assertEquals(historial, reabierto.historial())
+        assertEquals(antesDeFinalizar.copy(fin = 2000), reabierto.finalizado(primero.id))
+        assertEquals(activo.id, reabierto.activo()!!.id)
+    }
+
+    @Test
     fun seriesSeEditanRenumeranYConservanAlReabrir() {
         val base = gestor()
         val repo = EntrenamientoRepositorySqlite(base)

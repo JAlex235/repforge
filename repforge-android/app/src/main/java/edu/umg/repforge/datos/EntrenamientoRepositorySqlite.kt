@@ -6,11 +6,40 @@ import androidx.annotation.WorkerThread
 import edu.umg.repforge.modelo.BloqueEjercicio
 import edu.umg.repforge.modelo.Entrenamiento
 import edu.umg.repforge.modelo.Serie
+import edu.umg.repforge.modelo.ResumenEntrenamiento
 import edu.umg.repforge.servicio.ValidadorSerie
 
 class EntrenamientoRepositorySqlite(private val baseDatos: RepForgeDatabase) {
     @WorkerThread
     fun activo(): Entrenamiento? = transaccion { leerActivo(it) }
+
+    @WorkerThread
+    fun historial(): List<ResumenEntrenamiento> = transaccion { db ->
+        db.rawQuery("""
+            SELECT e.id_entrenamiento, e.nombre, e.fecha_hora_inicio, e.fecha_hora_fin,
+                   COUNT(DISTINCT b.id_bloque_ejercicio), COUNT(s.id_serie)
+            FROM entrenamiento e
+            LEFT JOIN bloque_ejercicio b ON b.id_entrenamiento = e.id_entrenamiento
+            LEFT JOIN serie s ON s.id_bloque_ejercicio = b.id_bloque_ejercicio
+            WHERE e.estado = 1
+            GROUP BY e.id_entrenamiento
+            ORDER BY e.fecha_hora_inicio DESC, e.id_entrenamiento DESC
+        """.trimIndent(), null).use { c ->
+            buildList {
+                while (c.moveToNext()) add(ResumenEntrenamiento(c.getLong(0), c.getString(1),
+                    c.getLong(2), c.getLong(3), c.getInt(4), c.getInt(5)))
+            }
+        }
+    }
+
+    @WorkerThread
+    fun finalizado(id: Long): Entrenamiento? = transaccion { db ->
+        db.rawQuery("SELECT nombre, fecha_hora_inicio, fecha_hora_fin FROM entrenamiento WHERE id_entrenamiento = ? AND estado = 1",
+            arrayOf(id.toString())).use { c ->
+            if (!c.moveToFirst()) null
+            else Entrenamiento(id, c.getString(0), c.getLong(1), leerBloques(db, id), c.getLong(2))
+        }
+    }
 
     /** Reintentar el inicio devuelve la sesión existente, sin crear otra. */
     @WorkerThread
@@ -114,7 +143,11 @@ class EntrenamientoRepositorySqlite(private val baseDatos: RepForgeDatabase) {
         db.rawQuery("SELECT id_entrenamiento, nombre, fecha_hora_inicio FROM entrenamiento WHERE estado = 0", null).use { c ->
             if (!c.moveToFirst()) return@use null
             val id = c.getLong(0)
-            val bloques = db.rawQuery("""
+            Entrenamiento(id, c.getString(1), c.getLong(2), leerBloques(db, id))
+        }
+
+    private fun leerBloques(db: SQLiteDatabase, id: Long): List<BloqueEjercicio> =
+        db.rawQuery("""
                 SELECT b.id_bloque_ejercicio, b.id_ejercicio, e.nombre, b.orden, e.usa_peso_corporal
                 FROM bloque_ejercicio b JOIN ejercicio e ON e.id_ejercicio = b.id_ejercicio
                 WHERE b.id_entrenamiento = ? ORDER BY b.orden
@@ -130,8 +163,6 @@ class EntrenamientoRepositorySqlite(private val baseDatos: RepForgeDatabase) {
                     }
                 }
             }
-            Entrenamiento(id, c.getString(1), c.getLong(2), bloques)
-        }
 
     private fun <T> transaccion(accion: (SQLiteDatabase) -> T): T {
         val db = baseDatos.abrir()

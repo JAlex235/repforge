@@ -9,6 +9,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.RepForge">
+        <activity android:name=".HistorialActivity" android:exported="false" />
         <activity
             android:name=".EntrenamientoActivity"
             android:exported="false"

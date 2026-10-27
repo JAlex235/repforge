@@ -1,12 +1,12 @@
 # RepForge Android
 
-Aplicación Android con Kotlin, XML y View Binding. Consume `Usuario` y `ValidadorUsuario` desde el JAR de Maven, sin copiar sus fuentes. Incluye Inicio y el formulario que carga, valida, guarda y actualiza el perfil en SQLite local.
+Aplicación Android con Kotlin, XML y View Binding. Consume los modelos y validadores del core desde el JAR de Maven, sin copiar sus fuentes. Incluye Inicio, perfil, catálogo de ejercicios, registro de entrenamientos y consulta del historial en SQLite local.
 
 ## Inicio y navegación
 
 - `InicioActivity` es la entrada de la aplicación. Consulta la base local: si no hay perfil, abre el formulario (`MainActivity`); si existe, muestra el saludo con el nombre guardado.
 - Guardar el primer perfil lleva a Inicio y cierra el formulario inicial. La barra inferior compartida permite navegar entre Inicio, Entrenar, Historial, Ejercicios y Perfil. La pestaña activa tiene un icono circular elevado, y adapta sus colores al tema. La barra queda fuera del scroll y por encima de la navegación del sistema o del teclado.
-- Entrenar abre la sesión en curso o el formulario para iniciarla. Historial conserva el destino informativo de Próximamente. Ejercicios abre el catálogo de SQLite; el botón Ir a entrenamiento de Inicio abre la misma sección Entrenar.
+- Entrenar abre la sesión en curso o el formulario para iniciarla. Historial muestra las sesiones terminadas y su detalle. Ejercicios abre el catálogo de SQLite; el botón Ir a entrenamiento de Inicio abre la misma sección Entrenar.
 - Durante el registro inicial, la barra permanece visible en Perfil pero requiere guardar el perfil antes de cambiar de sección. Al editar un perfil, cambiar de pestaña o pulsar Atrás con cambios pendientes solicita confirmación para descartarlos.
 - `PantallaBaseActivity` centraliza la barra y su navegación. Inicio permanece como raíz; al cambiar de una sección secundaria a otra, se reemplaza la pantalla anterior para evitar acumular un historial de pestañas. Las nuevas pantallas deben heredar esta clase y declarar `seccionActual`.
 - Se reutilizan la cabecera, el tema y las fuentes. La carga ocurre fuera del hilo de interfaz; ante un error se muestra Reintentar sin borrar datos ni tratar el error como ausencia de perfil.
@@ -25,13 +25,23 @@ EntrenamientoActivity permite iniciar una sesión con nombre, recuperar la sesi�
 
 Cada ejercicio tiene «Añadir serie». El formulario registra peso externo en kg (acepta punto o coma decimal) y repeticiones enteras. «Guardar serie» persiste de inmediato en SQLite local. Pulsar una serie permite editarla o eliminarla con confirmación; al eliminar se renumeran las restantes. El borrador del diálogo se conserva al recrear la Activity. `ValidadorSerie`, en el core Maven, exige peso finito no negativo y repeticiones positivas; cero kg solo está permitido en ejercicios de peso corporal y representa ausencia de carga adicional.
 
-«Finalizar entrenamiento» exige una serie guardada y pide confirmación. Una transacción elimina los bloques vacíos, ajusta el orden, guarda la fecha de fin y cambia el estado a terminado. Conserva las series y ya no permite modificar esa sesión. El mensaje de éxito confirma el guardado local; la pantalla de Historial sigue siendo el próximo avance. Finalizar no equivale a descartar.
+«Finalizar entrenamiento» exige una serie guardada y pide confirmación. Una transacción elimina los bloques vacíos, ajusta el orden, guarda la fecha de fin y cambia el estado a terminado. Conserva las series y ya no permite modificar esa sesión. El mensaje de éxito confirma el guardado local; Historial permite consultarlo. Finalizar no equivale a descartar.
 
 EntrenamientoRepositorySqlite usa transacciones para iniciar, añadir y descartar; el índice existente limita a una sesión activa. Repetir el inicio recupera la sesión existente. Las operaciones sobre IDs que ya no estén activos se rechazan. Descartar requiere confirmación en la pantalla y elimina por cascada los bloques y series de esa sesión; no modifica sesiones finalizadas.
 
 El inicio se guarda como milisegundos Unix y permite recuperar el tiempo tras cerrar la app. Mientras la pantalla está abierta se utiliza un reloj monotónico; no hay un servicio ejecutándose en segundo plano. Las consultas y escrituras se ejecutan fuera del hilo de interfaz. No se modificó el esquema ni las bases original y plantilla.
 
 Capturas del registro de series: [tema claro](app/img/series-claro.png) y [tema oscuro](app/img/series-oscuro.png). La lista se desplaza para acceder a Finalizar y Descartar; la cabecera y la barra inferior permanecen fijas.
+
+## Historial
+
+`HistorialActivity` consulta únicamente entrenamientos con estado terminado. La lista muestra nombre, fecha de inicio, duración y cantidades de ejercicios y series, ordenados por inicio descendente y por ID como desempate. La consulta agregada usa `COUNT(DISTINCT ...)` para no contar un ejercicio varias veces cuando tiene varias series. `ResumenEntrenamiento` vive en el core; la consulta SQLite permanece en Android según la guía de Clase 12.
+
+Tocar una fila abre su detalle de solo lectura dentro de la misma Activity. Muestra inicio y fin en la zona horaria del dispositivo, duración fija calculada como fin menos inicio, ejercicios ordenados y sus series con carga externa y repeticiones. Los ejercicios desactivados siguen siendo visibles en sesiones anteriores. El historial no modifica datos, ni reinicia el cronómetro, ni afecta la sesión activa.
+
+Atrás, «Volver al historial» o tocar la pestaña Historial estando en el detalle devuelve a la lista. El detalle seleccionado y la posición de desplazamiento se conservan al recrear la pantalla, incluido el cambio de tema. Las consultas se realizan en IO y se cancelan si una nueva selección las reemplaza. Se distinguen historial vacío, error con reintento y sesión no disponible; las otras pestañas mantienen la navegación compartida.
+
+Capturas: lista en [claro](app/img/historial-claro.png) y [oscuro](app/img/historial-oscuro.png); detalle en [claro](app/img/historial-detalle-claro.png) y [oscuro](app/img/historial-detalle-oscuro.png).
 
 ## Abrir y ejecutar
 
@@ -88,7 +98,7 @@ Para ejecutar las pruebas de instalación, reapertura y fallos en un dispositivo
 
 La propiedad `pruebasAisladas` utiliza el paquete `edu.umg.repforge.pruebas`, separado de la app habitual. Las pruebas de base trabajan en carpetas temporales; la prueba de pantalla guarda únicamente en ese paquete y se omite si no se activa la propiedad. El ejecutor puede retirar los paquetes probados al terminar. Compilar sin la propiedad para generar la aplicación normal. Una actualización del asset no se aplica automáticamente a instalaciones existentes.
 
-Verificación realizada: 25 pruebas instrumentadas aprobadas en API 35 (18 de base y 7 de interfaz; el caso de navegación requirió una repetición aislada tras un fallo transitorio). El core cuenta con 34 pruebas aprobadas. Cubren instalación y protección de la base, perfil, validaciones, transacciones, concurrencia, reapertura, borradores, navegación, catálogo y filtro. Incluyen inicio concurrente de entrenamiento, recuperación de sesión, incorporación idempotente de ejercicios, rechazo de ejercicios inactivos, protección de sesiones finalizadas y flujo de pantalla con cambio de tema y descarte confirmado. También se comprueban validación de series, edición, renumeración, pertenencia a la sesión, eliminación por cascada, recuperación del borrador y finalización con conservación de datos. Para las pruebas de interfaz el emulador debe estar desbloqueado y sin diálogos del sistema que cubran la aplicación.
+Verificación realizada: 28 pruebas instrumentadas aprobadas en API 35 (19 de base y 9 de interfaz), sin fallos ni omisiones en esta ejecución. El core cuenta con 34 pruebas aprobadas. Cubren instalación y protección de la base, perfil, validaciones, transacciones, concurrencia, reapertura, borradores, navegación, catálogo y filtro. Incluyen inicio concurrente de entrenamiento, recuperación de sesión, incorporación idempotente de ejercicios, rechazo de ejercicios inactivos, protección de sesiones finalizadas y flujo de pantalla con cambio de tema y descarte confirmado. También se comprueban validación de series, edición, renumeración, pertenencia a la sesión, eliminación por cascada, recuperación del borrador y finalización con conservación de datos. El historial añade pruebas de orden, totales sin duplicación, exclusión de la sesión activa, reapertura, ejercicios desactivados, estado vacío, consulta del detalle, cambio de tema y retorno a la lista. Para las pruebas de interfaz el emulador debe estar desbloqueado y sin diálogos del sistema que cubran la aplicación.
 
 ## Apariencia compartida
 

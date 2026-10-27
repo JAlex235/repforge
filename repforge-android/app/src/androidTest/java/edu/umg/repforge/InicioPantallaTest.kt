@@ -250,11 +250,12 @@ class InicioPantallaTest {
                 } else if (seccion == Seccion.ENTRENAR) {
                     esperarTexto(R.id.estadoEntrenar, app.getString(R.string.training_intro))
                 } else {
-                    esperarTexto(R.id.tvSeccion, app.getString(seccion.titulo))
+                    esperarTexto(R.id.estadoHistorial, app.getString(R.string.history_empty))
                 }
                 onView(withId(seccion.vistaId)).check(matches(isSelected()))
             }
             // Las pestañas reemplazan destinos secundarios; Atrás vuelve directamente a Inicio.
+            onView(withId(R.id.navEjercicios)).perform(closeSoftKeyboard())
             pressBack()
             esperarTexto(R.id.tvSaludo, "Hola, José")
             onView(withId(R.id.navPerfil)).perform(click())
@@ -268,6 +269,77 @@ class InicioPantallaTest {
             esperarTexto(R.id.tvSaludo, "Hola, José")
             assertEquals("José", app.usuarios.obtener()!!.nombre)
         }
+    }
+
+    @Test
+    fun historialVacioExcluyeLaSesionActiva() {
+        app.usuarios.guardar(Usuario("José", 20000514, 75.5, 170, true))
+        val activo = app.entrenamientos.iniciar("Todavía en curso")
+        ActivityScenario.launch(HistorialActivity::class.java).use {
+            esperarTexto(R.id.estadoHistorial, app.getString(R.string.history_empty))
+            onView(withId(R.id.listaHistorial)).check(matches(withEffectiveVisibility(Visibility.GONE)))
+            onView(withId(R.id.navHistorial)).check(matches(isSelected()))
+            assertEquals(activo.id, app.entrenamientos.activo()!!.id)
+        }
+    }
+
+    @Test
+    fun historialMuestraDetalleConservaTemaYRegresaALista() {
+        app.usuarios.guardar(Usuario("José", 20000514, 75.5, 170, true))
+        val ejercicios = app.ejercicios.listar()
+        fun terminar(nombre: String, inicio: Long): Long {
+            val sesion = app.entrenamientos.iniciar(nombre, inicio)
+            val bloque = app.entrenamientos.agregar(sesion.id, ejercicios.first { !it.usaPesoCorporal }.id).bloques.single()
+            app.entrenamientos.guardarSerie(sesion.id, bloque.id, null, 25.5, 10)
+            app.entrenamientos.guardarSerie(sesion.id, bloque.id, null, 30.0, 8)
+            app.entrenamientos.finalizar(sesion.id, inicio + 2700000)
+            return sesion.id
+        }
+        val ahora = System.currentTimeMillis()
+        terminar("Sesión anterior", ahora - 86400000)
+        val reciente = terminar("Pecho y tríceps", ahora - 3600000)
+        val esperado = app.entrenamientos.finalizado(reciente)
+        ActivityScenario.launch(HistorialActivity::class.java).use { escenario ->
+            esperarTexto(R.id.estadoHistorial, "2 entrenamientos finalizados")
+            capturarHistorial(escenario, "historial")
+            androidx.test.espresso.Espresso.onData(org.hamcrest.Matchers.anything())
+                .inAdapterView(withId(R.id.listaHistorial)).atPosition(0).perform(click())
+            esperarTexto(R.id.nombreHistorial, "Pecho y tríceps")
+            onView(withId(R.id.duracionHistorial)).check(matches(withText("00:45:00")))
+            onView(withId(R.id.resumenHistorial)).check(matches(withText("1 ejercicio · 2 series")))
+            onView(withId(R.id.seriesHistorial)).check(matches(withSubstring("25.5 kg × 10")))
+            capturarHistorial(escenario, "historial-detalle")
+            escenario.recreate()
+            esperarTexto(R.id.nombreHistorial, "Pecho y tríceps")
+            onView(withId(R.id.switchTema)).perform(click())
+            esperarTexto(R.id.nombreHistorial, "Pecho y tríceps")
+            capturarHistorial(escenario, "historial-detalle")
+            pressBack()
+            esperarTexto(R.id.estadoHistorial, "2 entrenamientos finalizados")
+            capturarHistorial(escenario, "historial")
+            androidx.test.espresso.Espresso.onData(org.hamcrest.Matchers.anything())
+                .inAdapterView(withId(R.id.listaHistorial)).atPosition(1).perform(click())
+            esperarTexto(R.id.nombreHistorial, "Sesión anterior")
+            onView(withId(R.id.navHistorial)).perform(click())
+            esperarTexto(R.id.estadoHistorial, "2 entrenamientos finalizados")
+            assertEquals(esperado, app.entrenamientos.finalizado(reciente))
+            onView(withId(R.id.navInicio)).perform(click())
+            esperarTexto(R.id.tvSaludo, "Hola, José")
+        }
+    }
+
+    private fun capturarHistorial(escenario: ActivityScenario<HistorialActivity>, prefijo: String) {
+        instrumentacion.waitForIdleSync()
+        var oscuro = false
+        escenario.onActivity {
+            oscuro = it.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+        }
+        val nombre = prefijo + if (oscuro) "-oscuro.png" else "-claro.png"
+        val imagen = instrumentacion.uiAutomation.takeScreenshot()
+        java.io.File(app.getExternalFilesDir(null), nombre).outputStream().use {
+            check(imagen.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it))
+        }
+        imagen.recycle()
     }
 
     private fun esperarTexto(id: Int, texto: String) {

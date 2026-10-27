@@ -101,4 +101,30 @@
     <string name="training_finish_message">Se guardará el entrenamiento como terminado y se quitarán los ejercicios sin series. Ya no podrás editarlo.</string>
     <string name="training_finish_empty">Guarda al menos una serie antes de finalizar.</string>
     <string name="training_finished">Entrenamiento finalizado y guardado en este dispositivo.</string>
+    <string name="history_loading">Cargando historial…</string>
+    <string name="history_empty">Todavía no hay entrenamientos finalizados. Completa tu primera sesión en Entrenar para verla aquí.</string>
+    <string name="history_error">No se pudo consultar el historial. Inténtalo nuevamente.</string>
+    <string name="history_missing">Este entrenamiento ya no está disponible en el historial.</string>
+    <string name="history_read_only">Entrenamiento finalizado · Solo consulta</string>
+    <string name="history_back">Volver al historial</string>
+    <string name="history_open">Ver detalle ›</string>
+    <string name="history_duration">Duración</string>
+    <string name="history_dates">Inicio: %1$s\nFin: %2$s</string>
+    <string name="history_numbers">%1$s · %2$s</string>
+    <string name="history_summary">%1$s\nDuración: %2$s</string>
+    <string name="history_series_row">Serie %1$d: %2$s kg × %3$d rep.</string>
+    <string name="history_bodyweight">Peso corporal · Los kg indican carga adicional.</string>
+    <string name="history_external">Carga externa en kg</string>
+    <plurals name="history_count">
+        <item quantity="one">%d entrenamiento finalizado</item>
+        <item quantity="other">%d entrenamientos finalizados</item>
+    </plurals>
+    <plurals name="history_exercises">
+        <item quantity="one">%d ejercicio</item>
+        <item quantity="other">%d ejercicios</item>
+    </plurals>
+    <plurals name="history_series">
+        <item quantity="one">%d serie</item>
+        <item quantity="other">%d series</item>
+    </plurals>
 </resources>
