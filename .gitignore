@@ -6,6 +6,8 @@ build/
 .cxx/
 .externalNativeBuild/
 *.apk
+# APK de entrega solicitado para el proyecto.
+!/repforge-android/RepForge-1.0.0.apk
 *.aab
 *.apks
 *.class
