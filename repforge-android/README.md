@@ -69,6 +69,8 @@ APK de desarrollo: `app/build/outputs/apk/debug/app-debug.apk`.
 
 Si había un daemon activo antes de cambiar la selección de Java, detenerlo una vez con `.\gradlew.bat --stop` y volver a sincronizar Gradle en Android Studio. La configuración se aplica al proyecto Android; no modifica Maven ni el Java global del sistema. Referencia: https://docs.gradle.org/current/userguide/gradle_daemon.html
 
+Si Android Studio muestra que `jlink.exe` no existe y la ruta pertenece a una extensión de VS Code, revisar también la selección local de JDK del IDE. Debe utilizar un **JDK completo de Java 25**, como la instalación Temurin 25 gestionada por Gradle, y no el runtime de la extensión. El nombre de una entrada como `25` no garantiza que apunte a un JDK completo: comprobar su ruta y que exista `bin/jlink.exe`. La selección local del IDE se guarda en `.idea`, que está excluida de Git, por lo que debe verificarse al abrir el proyecto en otra computadora.
+
 ## Comprobación manual de la pantalla
 
 - Peso o altura vacíos: mostrar error, sin cerrar la app.
