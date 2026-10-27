@@ -85,4 +85,20 @@
         <item quantity="one">%d ejercicio en la sesión</item>
         <item quantity="other">%d ejercicios en la sesión</item>
     </plurals>
+    <string name="series_add">Añadir serie</string>
+    <string name="series_edit">Editar serie %1$d</string>
+    <string name="series_save">Guardar serie</string>
+    <string name="series_delete">Eliminar serie</string>
+    <string name="series_delete_message">Se eliminará esta serie y se renumerarán las restantes.</string>
+    <string name="series_weight">Peso externo (kg)</string>
+    <string name="series_reps">Repeticiones</string>
+    <string name="series_bodyweight">Usa 0 kg si trabajas solo con tu peso corporal, o indica el peso adicional.</string>
+    <string name="series_external">Registra la carga utilizada, mayor a 0 kg.</string>
+    <string name="series_invalid">Ingresa un peso válido y un número entero de repeticiones.</string>
+    <string name="series_empty">Sin series guardadas.</string>
+    <string name="series_row">Serie %1$d · %2$s kg × %3$d rep. · Editar</string>
+    <string name="training_finish">Finalizar entrenamiento</string>
+    <string name="training_finish_message">Se guardará el entrenamiento como terminado y se quitarán los ejercicios sin series. Ya no podrás editarlo.</string>
+    <string name="training_finish_empty">Guarda al menos una serie antes de finalizar.</string>
+    <string name="training_finished">Entrenamiento finalizado y guardado en este dispositivo.</string>
 </resources>

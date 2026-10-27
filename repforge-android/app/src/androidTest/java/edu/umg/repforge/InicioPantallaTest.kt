@@ -72,6 +72,90 @@ class InicioPantallaTest {
     }
 
     @Test
+    fun seriesGuardanBorradorEditanEliminanYFinalizan() {
+        app.usuarios.guardar(Usuario("José", 20000514, 75.5, 170, true))
+        val sesion = app.entrenamientos.iniciar("Fuerza con series")
+        val ejercicio = app.ejercicios.listar().first { !it.usaPesoCorporal }
+        val bloque = app.entrenamientos.agregar(sesion.id, ejercicio.id).bloques.single()
+        ActivityScenario.launch(EntrenamientoActivity::class.java).use { escenario ->
+            esperarTexto(R.id.nombreSesion, "Fuerza con series")
+            onView(withText(R.string.series_add)).perform(scrollTo(), click())
+            onView(withId(R.id.pesoSerie)).perform(replaceText("20,5"), closeSoftKeyboard())
+            onView(withId(R.id.repeticionesSerie)).perform(replaceText("10"), closeSoftKeyboard())
+            escenario.recreate()
+            esperarTexto(R.id.pesoSerie, "20,5")
+            onView(withId(R.id.repeticionesSerie)).check(matches(withText("10")))
+            onView(withText(R.string.series_save)).perform(click())
+            esperarFilaSerie(1, "20.5", 10)
+            onView(withText(app.getString(R.string.series_row, 1, "20.5", 10))).perform(scrollTo(), click())
+            onView(withId(R.id.pesoSerie)).perform(replaceText("0"), closeSoftKeyboard())
+            onView(withText(R.string.series_save)).perform(click())
+            onView(withId(R.id.errorSerie)).check(matches(withText("Este ejercicio requiere un peso mayor a cero.")))
+            onView(withId(R.id.pesoSerie)).perform(replaceText("25"), closeSoftKeyboard())
+            onView(withId(R.id.repeticionesSerie)).perform(replaceText("8"), closeSoftKeyboard())
+            onView(withText(R.string.series_save)).perform(click())
+            esperarFilaSerie(1, "25", 8)
+            onView(withText(R.string.series_add)).perform(scrollTo(), click())
+            onView(withId(R.id.pesoSerie)).perform(replaceText("30"), closeSoftKeyboard())
+            onView(withId(R.id.repeticionesSerie)).perform(replaceText("6"), closeSoftKeyboard())
+            onView(withText(R.string.series_save)).perform(click())
+            esperarFilaSerie(2, "30", 6)
+            onView(withText(app.getString(R.string.series_row, 2, "30", 6))).perform(scrollTo(), click())
+            onView(withText(R.string.series_delete)).perform(click())
+            esperarTexto(android.R.id.message, app.getString(R.string.series_delete_message))
+            onView(withId(android.R.id.button1)).perform(click())
+            esperarTexto(R.id.estadoEntrenar, app.getString(R.string.training_saved))
+            assertEquals(1, app.entrenamientos.activo()!!.bloques.single().series.size)
+            escenario.recreate()
+            esperarFilaSerie(1, "25", 8)
+            onView(withText(R.string.series_add)).perform(scrollTo())
+            capturarSeries(escenario)
+            onView(withId(R.id.switchTema)).perform(click())
+            esperarFilaSerie(1, "25", 8)
+            onView(withText(R.string.series_add)).perform(scrollTo())
+            capturarSeries(escenario)
+            onView(withId(R.id.finalizarEntrenamiento)).perform(scrollTo(), click())
+            onView(withId(android.R.id.button2)).perform(click())
+            assertNotNull(app.entrenamientos.activo())
+            onView(withId(R.id.finalizarEntrenamiento)).perform(scrollTo(), click())
+            onView(withId(android.R.id.button1)).perform(click())
+            esperarTexto(R.id.estadoEntrenar, app.getString(R.string.training_finished))
+            assertNull(app.entrenamientos.activo())
+            app.baseDatos.abrir().rawQuery("SELECT peso_kg, repeticiones FROM serie WHERE id_bloque_ejercicio = ?",
+                arrayOf(bloque.id.toString())).use {
+                assertTrue(it.moveToFirst()); assertEquals(25.0, it.getDouble(0), 0.0); assertEquals(8, it.getInt(1))
+            }
+        }
+    }
+
+    private fun capturarSeries(escenario: ActivityScenario<EntrenamientoActivity>) {
+        instrumentacion.waitForIdleSync()
+        var oscuro = false
+        escenario.onActivity {
+            oscuro = it.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+        }
+        val nombre = if (oscuro) "series-oscuro.png" else "series-claro.png"
+        val imagen = instrumentacion.uiAutomation.takeScreenshot()
+        java.io.File(app.getExternalFilesDir(null), nombre).outputStream().use {
+            check(imagen.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it))
+        }
+        imagen.recycle()
+    }
+
+    private fun esperarFilaSerie(numero: Int, peso: String, repeticiones: Int) {
+        val limite = SystemClock.uptimeMillis() + 15000
+        while (true) {
+            try {
+                onView(withText(app.getString(R.string.series_row, numero, peso, repeticiones))).check(matches(isEnabled()))
+                return
+            } catch (error: NoMatchingViewException) {
+                if (SystemClock.uptimeMillis() >= limite) throw error
+            }
+            SystemClock.sleep(100)
+        }
+    }
+
+    @Test
     fun perfilExistenteAbreInicioYActualizaSaludoAlVolverConTemaConservado() {
         app.usuarios.guardar(Usuario("José", 20000514, 75.5, 170, true))
         ActivityScenario.launch(InicioActivity::class.java).use { escenario ->

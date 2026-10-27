@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
+    <TextView android:id="@+id/ayudaPeso" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.RepForge.Detail" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp"
+        android:text="@string/series_weight" android:labelFor="@id/pesoSerie" android:textAppearance="@style/TextAppearance.RepForge.Subtitle" />
+    <EditText android:id="@+id/pesoSerie" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:minHeight="48dp" android:inputType="numberDecimal" android:digits="0123456789.," android:autofillHints=""
+        android:saveEnabled="false" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp"
+        android:text="@string/series_reps" android:labelFor="@id/repeticionesSerie" android:textAppearance="@style/TextAppearance.RepForge.Subtitle" />
+    <EditText android:id="@+id/repeticionesSerie" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:minHeight="48dp" android:inputType="number" android:autofillHints="" android:saveEnabled="false" />
+    <TextView android:id="@+id/errorSerie" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:accessibilityLiveRegion="polite" android:textAppearance="@style/TextAppearance.RepForge.Body" />
+</LinearLayout>

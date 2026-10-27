@@ -8,5 +8,10 @@ data class Entrenamiento(
     val bloques: List<BloqueEjercicio>
 )
 
-data class BloqueEjercicio(val id: Long, val ejercicioId: Long, val nombre: String, val orden: Int)
+data class BloqueEjercicio(
+    val id: Long, val ejercicioId: Long, val nombre: String, val orden: Int,
+    val usaPesoCorporal: Boolean = false, val series: List<Serie> = emptyList()
+)
+
+data class Serie(val id: Long, val numero: Int, val pesoKg: Double, val repeticiones: Int)
 

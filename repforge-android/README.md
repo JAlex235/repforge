@@ -21,11 +21,17 @@ Después de actualizar los modelos del core, ejecutar `mvn clean install` antes 
 
 ## Entrenamiento en curso
 
-EntrenamientoActivity permite iniciar una sesión con nombre, recuperar la sesión activa, consultar el tiempo transcurrido y añadir ejercicios del catálogo mediante un selector. Cada ejercicio aparece una vez en la sesión; repetir su selección es idempotente. La lista conserva el orden de incorporación. El registro de series y la finalización se implementarán en el siguiente avance.
+EntrenamientoActivity permite iniciar una sesión con nombre, recuperar la sesión activa, consultar el tiempo transcurrido y añadir ejercicios del catálogo mediante un selector. Cada ejercicio aparece una vez en la sesión; repetir su selección es idempotente. La lista conserva el orden de incorporación.
+
+Cada ejercicio tiene «Añadir serie». El formulario registra peso externo en kg (acepta punto o coma decimal) y repeticiones enteras. «Guardar serie» persiste de inmediato en SQLite local. Pulsar una serie permite editarla o eliminarla con confirmación; al eliminar se renumeran las restantes. El borrador del diálogo se conserva al recrear la Activity. `ValidadorSerie`, en el core Maven, exige peso finito no negativo y repeticiones positivas; cero kg solo está permitido en ejercicios de peso corporal y representa ausencia de carga adicional.
+
+«Finalizar entrenamiento» exige una serie guardada y pide confirmación. Una transacción elimina los bloques vacíos, ajusta el orden, guarda la fecha de fin y cambia el estado a terminado. Conserva las series y ya no permite modificar esa sesión. El mensaje de éxito confirma el guardado local; la pantalla de Historial sigue siendo el próximo avance. Finalizar no equivale a descartar.
 
 EntrenamientoRepositorySqlite usa transacciones para iniciar, añadir y descartar; el índice existente limita a una sesión activa. Repetir el inicio recupera la sesión existente. Las operaciones sobre IDs que ya no estén activos se rechazan. Descartar requiere confirmación en la pantalla y elimina por cascada los bloques y series de esa sesión; no modifica sesiones finalizadas.
 
 El inicio se guarda como milisegundos Unix y permite recuperar el tiempo tras cerrar la app. Mientras la pantalla está abierta se utiliza un reloj monotónico; no hay un servicio ejecutándose en segundo plano. Las consultas y escrituras se ejecutan fuera del hilo de interfaz. No se modificó el esquema ni las bases original y plantilla.
+
+Capturas del registro de series: [tema claro](app/img/series-claro.png) y [tema oscuro](app/img/series-oscuro.png). La lista se desplaza para acceder a Finalizar y Descartar; la cabecera y la barra inferior permanecen fijas.
 
 ## Abrir y ejecutar
 
@@ -82,13 +88,13 @@ Para ejecutar las pruebas de instalación, reapertura y fallos en un dispositivo
 
 La propiedad `pruebasAisladas` utiliza el paquete `edu.umg.repforge.pruebas`, separado de la app habitual. Las pruebas de base trabajan en carpetas temporales; la prueba de pantalla guarda únicamente en ese paquete y se omite si no se activa la propiedad. El ejecutor puede retirar los paquetes probados al terminar. Compilar sin la propiedad para generar la aplicación normal. Una actualización del asset no se aplica automáticamente a instalaciones existentes.
 
-Verificación realizada: 21 pruebas instrumentadas aprobadas en API 35, sin fallos ni omisiones. Cubren instalación y protección de la base, perfil, validaciones, transacciones, concurrencia, reapertura, borradores, navegación, catálogo y filtro. Incluyen inicio concurrente de entrenamiento, recuperación de sesión, incorporación idempotente de ejercicios, rechazo de ejercicios inactivos, protección de sesiones finalizadas y flujo de pantalla con cambio de tema y descarte confirmado. Para las pruebas de interfaz el emulador debe estar desbloqueado y sin diálogos del sistema que cubran la aplicación.
+Verificación realizada: 25 pruebas instrumentadas aprobadas en API 35 (18 de base y 7 de interfaz; el caso de navegación requirió una repetición aislada tras un fallo transitorio). El core cuenta con 34 pruebas aprobadas. Cubren instalación y protección de la base, perfil, validaciones, transacciones, concurrencia, reapertura, borradores, navegación, catálogo y filtro. Incluyen inicio concurrente de entrenamiento, recuperación de sesión, incorporación idempotente de ejercicios, rechazo de ejercicios inactivos, protección de sesiones finalizadas y flujo de pantalla con cambio de tema y descarte confirmado. También se comprueban validación de series, edición, renumeración, pertenencia a la sesión, eliminación por cascada, recuperación del borrador y finalización con conservación de datos. Para las pruebas de interfaz el emulador debe estar desbloqueado y sin diálogos del sistema que cubran la aplicación.
 
 ## Apariencia compartida
 
 Imágenes en `app/src/main/res/drawable-nodpi/`: `repforge_icono.png` es el icono de launcher, utilizado por los recursos mipmap; `repforge_logo.png` se muestra antes del título en la cabecera común. Se trasladaron desde la raíz del repositorio conservando sus contenidos originales.
 
-Tipografía: Roboto (familia Android `sans-serif`) para cuerpo/detalles, Oswald 600 para títulos y futuros cronómetros, Montserrat 500 para subtítulos y Montserrat 600 para botones, incluidos Aceptar/Cancelar del calendario. Estilos reutilizables en `res/values/typography.xml`; el estilo Timer está preparado, pero aún no existe una pantalla de cronómetro.
+Tipografía: Roboto (familia Android `sans-serif`) para cuerpo/detalles, Oswald 600 para títulos y el cronómetro de entrenamiento, Montserrat 500 para subtítulos y Montserrat 600 para botones, incluidos Aceptar/Cancelar del calendario. Estilos reutilizables en `res/values/typography.xml`.
 
 Oswald y Montserrat se incluyen como TTF estáticos en `res/font`, compatibles con la carga de AppCompat desde API 24 y sin descargas durante el uso. Proceden de https://github.com/google/fonts/tree/main/ofl/oswald y https://github.com/google/fonts/tree/main/ofl/montserrat; las licencias SIL OFL están incluidas en `assets/licenses`. Se verificaron glifos de tildes, ñ, ü, cifras y dos puntos.
 

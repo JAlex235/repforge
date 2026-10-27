@@ -69,6 +69,76 @@ class RepForgeDatabaseTest {
     }
 
     @Test
+    fun seriesSeEditanRenumeranYConservanAlReabrir() {
+        val base = gestor()
+        val repo = EntrenamientoRepositorySqlite(base)
+        val sesion = repo.iniciar("Series", 1000)
+        val ejercicio = EjercicioRepositorySqlite(base).listar().first()
+        val bloque = repo.agregar(sesion.id, ejercicio.id).bloques.single()
+        repeat(3) { repo.guardarSerie(sesion.id, bloque.id, null, 20.5, 10) }
+        val series = repo.activo()!!.bloques.single().series
+        repo.guardarSerie(sesion.id, bloque.id, series[0].id, 25.0, 8)
+        repo.eliminarSerie(sesion.id, bloque.id, series[1].id)
+        repo.guardarSerie(sesion.id, bloque.id, null, 30.0, 6)
+        val esperado = repo.activo()!!
+        assertEquals(listOf(1, 2, 3), esperado.bloques.single().series.map { it.numero })
+        assertEquals(series[2].id, esperado.bloques.single().series[1].id)
+        assertEquals(25.0, esperado.bloques.single().series[0].pesoKg, 0.0)
+        assertEquals(8, esperado.bloques.single().series[0].repeticiones)
+        base.close()
+        assertEquals(esperado, EntrenamientoRepositorySqlite(gestor()).activo())
+    }
+
+    @Test
+    fun finalizarConservaSeriesQuitaVaciosYProtegeSesionTerminada() {
+        val base = gestor()
+        val repo = EntrenamientoRepositorySqlite(base)
+        val sesion = repo.iniciar("Final", 1000)
+        val ejercicios = EjercicioRepositorySqlite(base).listar()
+        repeat(3) { repo.agregar(sesion.id, ejercicios[it].id) }
+        try { repo.finalizar(sesion.id); fail("No debe finalizar vacía") } catch (_: IllegalArgumentException) {}
+        assertEquals(3, repo.activo()!!.bloques.size)
+        val bloque = repo.activo()!!.bloques[1]
+        repo.guardarSerie(sesion.id, bloque.id, null, 20.0, 10)
+        repo.finalizar(sesion.id, 500) // Un ajuste del reloj no puede violar la fecha de inicio.
+        assertNull(repo.activo())
+        assertEquals(1, numero(base.abrir(), "SELECT COUNT(*) FROM serie"))
+        assertEquals(1, numero(base.abrir(), "SELECT COUNT(*) FROM bloque_ejercicio"))
+        assertEquals(1, numero(base.abrir(), "SELECT orden FROM bloque_ejercicio"))
+        assertEquals(1000, numero(base.abrir(), "SELECT fecha_hora_fin FROM entrenamiento"))
+        assertEquals(1, numero(base.abrir(), "SELECT estado FROM entrenamiento"))
+        try { repo.guardarSerie(sesion.id, bloque.id, null, 20.0, 10); fail("Sesión cerrada") } catch (_: IllegalArgumentException) {}
+        try { repo.eliminarSerie(sesion.id, bloque.id, 1); fail("Sesión cerrada") } catch (_: IllegalArgumentException) {}
+        assertNotEquals(sesion.id, repo.iniciar("Nueva").id)
+    }
+
+    @Test
+    fun validarSeriesImpideCambiosInvalidosYReferenciasAjenas() {
+        val base = gestor()
+        val repo = EntrenamientoRepositorySqlite(base)
+        val sesion = repo.iniciar("Validación")
+        val ejercicios = EjercicioRepositorySqlite(base).listar()
+        val corporal = ejercicios.first { it.usaPesoCorporal }
+        val externo = ejercicios.first { !it.usaPesoCorporal }
+        repo.agregar(sesion.id, corporal.id)
+        val bloques = repo.agregar(sesion.id, externo.id).bloques
+        repo.guardarSerie(sesion.id, bloques[0].id, null, 0.0, 12)
+        val esperado = repo.activo()
+        val operaciones = listOf<() -> Unit>(
+            { repo.guardarSerie(sesion.id, bloques[1].id, null, 0.0, 12) },
+            { repo.guardarSerie(sesion.id, bloques[0].id, null, 1.0, 0) },
+            { repo.guardarSerie(sesion.id, -1, null, 20.0, 10) },
+            { repo.guardarSerie(sesion.id, bloques[1].id, esperado!!.bloques[0].series[0].id, 20.0, 10) }
+        )
+        operaciones.forEach { operacion ->
+            try { operacion(); fail("Debe rechazar operación inválida") } catch (_: IllegalArgumentException) {}
+            assertEquals(esperado, repo.activo())
+        }
+        repo.descartar(sesion.id)
+        assertEquals(0, numero(base.abrir(), "SELECT COUNT(*) FROM serie"))
+    }
+
+    @Test
     fun entrenamientoRechazaNombreVacioEjercicioInactivoYSesionFinalizada() {
         val base = gestor()
         val repo = EntrenamientoRepositorySqlite(base)

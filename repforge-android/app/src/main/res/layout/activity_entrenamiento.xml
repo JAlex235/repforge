@@ -39,6 +39,8 @@
                 android:layout_marginTop="12dp" android:textAppearance="@style/TextAppearance.RepForge.Detail" />
             <LinearLayout android:id="@+id/bloquesEntrenamiento" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:orientation="vertical" />
+            <Button android:id="@+id/finalizarEntrenamiento" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="24dp" android:text="@string/training_finish" />
             <Button android:id="@+id/descartarEntrenamiento" android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:layout_marginTop="24dp" android:text="@string/training_discard" />
         </LinearLayout>
